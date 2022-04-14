@@ -1,1 +1,5 @@
 object_id,sequence_number,name,description,framework
+P01,1,Plan,"Summary: Envision the desired outcome. Lay out effective ways of achieving it. Communicate the vision, intent, and decisions, focusing on expected results.",FW01
+P02,2,Prepare,"Summary: Activities conducted before execution to improve the ability to conduct the action. Examples include: development of the ecosystem needed to support the action: people, network, channels, content etc.",FW01
+P03,3,Execute,"Summary: Run the action, from initial exposure to wrap-up and/or maintaining presence etc.",FW01
+P04,4,Assess,"Summary: Evaluate effectiveness of action, for use in future plans.",FW01

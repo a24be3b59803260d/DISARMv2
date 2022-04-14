@@ -18,7 +18,7 @@ CREATE TABLE "tactics" (
   "description" text
 );
 
-CREATE TABLE "phase_tatics" (
+CREATE TABLE "phase_tactics" (
   "phase_id" varchar,
   "tactic_id" varchar
 );
@@ -158,9 +158,9 @@ CREATE TABLE "related_narratives" (
 
 ALTER TABLE "phases" ADD FOREIGN KEY ("framework") REFERENCES "frameworks" ("object_id");
 
-ALTER TABLE "phase_tatics" ADD FOREIGN KEY ("phase_id") REFERENCES "phases" ("object_id");
+ALTER TABLE "phase_tactics" ADD FOREIGN KEY ("phase_id") REFERENCES "phases" ("object_id");
 
-ALTER TABLE "phase_tatics" ADD FOREIGN KEY ("tactic_id") REFERENCES "tactics" ("object_id");
+ALTER TABLE "phase_tactics" ADD FOREIGN KEY ("tactic_id") REFERENCES "tactics" ("object_id");
 
 ALTER TABLE "tactic_techniques" ADD FOREIGN KEY ("tech_id") REFERENCES "techniques" ("object_id");
 
