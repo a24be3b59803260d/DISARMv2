@@ -24,7 +24,7 @@ Table tactics {
 }
 
 // tactics may be associated with multiple phases
-Table phase_tatics {
+Table phase_tactics {
   phase_id varchar [ref: > phases.object_id]
   tactic_id varchar [ref: - tactics.object_id]
 }
