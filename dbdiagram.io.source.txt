@@ -1,0 +1,179 @@
+// Source: https://dbdiagram.io/d/62321b9a0ac038740c4818be
+
+// Creating tables
+Table frameworks as F {
+  id int [pk, increment]
+  name varchar
+  description text
+  object_id varchar
+}
+
+Table phases {
+  // Frameworks consist of phases
+  id int [pk, increment, ref: > F.id]
+  sequence_number int// Phases have order
+  name varchar
+  description text
+  object_id varchar
+}
+
+Table tactics {
+  // Phases contain tactics
+  id int [pk, ref: > phases.id]
+  name varchar
+  description text
+  object_id varchar
+}
+
+Table techniques as tech {
+  // Tactics can be accomplished with one or more technqiues
+  id int [pk, ref: > tactics.id, ref: < F.id]
+  name varchar
+  description text
+  // TECHNIQUEs can produce and consume NARRATIVEs
+  can_produce_narratives boolean
+  can_consume_narratives boolean
+  object_id varchar
+}
+
+// Techniques belong to one or more Frameworks
+Table belongs_to_framework {
+  framework int [ref: < F.id]
+  technique int [ref: - tech.id]
+}
+
+Table detections as D {
+  id int [pk]
+  // Techniques are detected by one or more detections
+  detects_technique int [ref: > techniques.id]
+  name varchar
+  description text
+  object_id varchar
+}
+
+// Techniques are countered by techniques
+Table counters{
+  technique_id int [ref: - tech.id]
+  countered_by int [ref: - tech.id]
+  object_id varchar
+}
+
+//////////////////////////////////////
+// TAGS
+//
+
+Table metatechniques as M {
+  id int [pk]
+  name varchar
+  description text
+  object_id varchar
+}
+
+// Metatechniques may associate one or more techniques
+Table metatechnique_associations {
+  metatechnique int [ref: - M.id]
+  technique int [ref: - tech.id]
+}
+
+Table actortypes as A {
+  id int [pk]
+  name varchar
+  description text
+  object_id varchar
+}
+
+// ACTORTYPEs may perform one or more TECHNIQUEs
+Table can_perform {
+  actortype int [ref: - A.id]
+  technique int [ref: - tech.id]
+}
+
+// ACTORTYPEs may be associated with one or more FRAMEWORKs
+Table framework_association {
+  actortype int [ref: - A.id]
+  framework int [ref: - frameworks.id]
+}
+
+// DETECTIONs may be associated with one or more ACTORTYPEs
+Table actor_capable_detections {
+  actortype int [ref: - A.id]
+  detection int [ref: - detections.id]
+}
+
+///////////////////////////////////////
+// USAGE
+//
+
+Table actors {
+  id int [pk]
+  name varchar
+  description text
+}
+
+Table campaigns as C {
+  id int [pk]
+  name varchar
+  description text
+}
+
+// Multiple actors may be involved in multiple campaigns
+Table campaign_actors {
+  actor int [ref: - actors.id]
+  campaign int [ref: - C.id]
+}
+
+// Detection events are the detection and supporting data
+Table detection_events {
+  id int [pk]
+  detection int [ref: - detections.id]
+  event_data text
+}
+
+Table incidents {
+  id int [pk]
+  name varchar
+  summary text
+}
+
+// INCIDENTs may be associated with a CAMPAIGN
+Table campaign_incidents {
+  campaign_id int [ref: - C.id]
+  incident int [ref: < incidents.id]
+}
+
+// INCIDENTs are one or more DETECTIONs with accompanying data
+Table incident_detections {
+  incident_id int [ref: - incidents.id]
+  event int [ref: < detection_events.id]
+}
+// INCIDENTs include zero or more deployed TECHNIQUEs
+// These can be found joining the incidents, evidence, detection
+
+// ACTORs belong to one or more ACTORTYPEs
+Table actors_to_types {
+  actor_id int [ref: - actors.id]
+  actor_type_id int [ref: < A.id]
+}
+
+// NARRATIVEs are one or more distinct concepts that support CAMPAIGNs
+Table narratives {
+  id int [pk]
+  name varchar
+  description text
+}
+
+Table narrative_campaign_support {
+  narratives_id int [ref: - narratives.id]
+  supports_campaign int [ref: - C.id]
+}
+
+Table narrative_associated_incident {
+  narratives_id int [ref: - narratives.id]
+  associated_incident int [ref: - incidents.id]
+}
+
+Table related_narratives {
+  narrative_a int [ref: - narratives.id]
+  narrative_b int [ref: - narratives.id]
+  relationship varchar
+}
