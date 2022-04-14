@@ -1,85 +1,93 @@
 CREATE TABLE "frameworks" (
-  "id" SERIAL PRIMARY KEY,
+  "object_id" varchar PRIMARY KEY,
   "name" varchar,
-  "description" text,
-  "object_id" varchar
+  "description" text
 );
 
 CREATE TABLE "phases" (
-  "id" SERIAL PRIMARY KEY,
+  "object_id" varchar PRIMARY KEY,
   "sequence_number" int,
   "name" varchar,
   "description" text,
-  "object_id" varchar
+  "framework" varchar
 );
 
 CREATE TABLE "tactics" (
-  "id" int PRIMARY KEY,
+  "object_id" varchar PRIMARY KEY,
   "name" varchar,
-  "description" text,
-  "object_id" varchar
+  "description" text
+);
+
+CREATE TABLE "phase_tatics" (
+  "phase_id" varchar,
+  "tactic_id" varchar
 );
 
 CREATE TABLE "techniques" (
-  "id" int PRIMARY KEY,
+  "object_id" varchar PRIMARY KEY,
   "name" varchar,
   "description" text,
   "can_produce_narratives" boolean,
-  "can_consume_narratives" boolean,
-  "object_id" varchar
+  "can_consume_narratives" boolean
+);
+
+CREATE TABLE "tactic_techniques" (
+  "tech_id" varchar,
+  "tactic_id" varchar
 );
 
 CREATE TABLE "belongs_to_framework" (
-  "framework" int,
-  "technique" int
+  "framework" varchar,
+  "technique" varchar
 );
 
 CREATE TABLE "detections" (
-  "id" int PRIMARY KEY,
-  "detects_technique" int,
+  "object_id" varchar PRIMARY KEY,
   "name" varchar,
-  "description" text,
-  "object_id" varchar
+  "description" text
+);
+
+CREATE TABLE "detects_technique" (
+  "detection_id" varchar,
+  "technique_id" varchar
 );
 
 CREATE TABLE "counters" (
-  "technique_id" int,
-  "countered_by" int,
-  "object_id" varchar
+  "object_id" varchar PRIMARY KEY,
+  "technique_id" varchar,
+  "countered_by" varchar
 );
 
 CREATE TABLE "metatechniques" (
-  "id" int PRIMARY KEY,
+  "object_id" varchar PRIMARY KEY,
   "name" varchar,
-  "description" text,
-  "object_id" varchar
+  "description" text
 );
 
 CREATE TABLE "metatechnique_associations" (
-  "metatechnique" int,
-  "technique" int
+  "metatechnique" varchar,
+  "technique" varchar
 );
 
 CREATE TABLE "actortypes" (
-  "id" int PRIMARY KEY,
+  "object_id" varchar PRIMARY KEY,
   "name" varchar,
-  "description" text,
-  "object_id" varchar
+  "description" text
 );
 
 CREATE TABLE "can_perform" (
-  "actortype" int,
-  "technique" int
+  "actortype" varchar,
+  "technique" varchar
 );
 
 CREATE TABLE "framework_association" (
-  "actortype" int,
-  "framework" int
+  "actortype" varchar,
+  "framework" varchar
 );
 
 CREATE TABLE "actor_capable_detections" (
-  "actortype" int,
-  "detection" int
+  "actortype" varchar,
+  "detection" varchar
 );
 
 CREATE TABLE "actors" (
@@ -101,7 +109,7 @@ CREATE TABLE "campaign_actors" (
 
 CREATE TABLE "detection_events" (
   "id" int PRIMARY KEY,
-  "detection" int,
+  "detection" varchar,
   "event_data" text
 );
 
@@ -123,7 +131,7 @@ CREATE TABLE "incident_detections" (
 
 CREATE TABLE "actors_to_types" (
   "actor_id" int,
-  "actor_type_id" int
+  "actor_type_id" varchar
 );
 
 CREATE TABLE "narratives" (
@@ -148,57 +156,61 @@ CREATE TABLE "related_narratives" (
   "relationship" varchar
 );
 
-ALTER TABLE "phases" ADD FOREIGN KEY ("id") REFERENCES "frameworks" ("id");
+ALTER TABLE "phases" ADD FOREIGN KEY ("framework") REFERENCES "frameworks" ("object_id");
 
-ALTER TABLE "tactics" ADD FOREIGN KEY ("id") REFERENCES "phases" ("id");
+ALTER TABLE "phase_tatics" ADD FOREIGN KEY ("phase_id") REFERENCES "phases" ("object_id");
 
-ALTER TABLE "techniques" ADD FOREIGN KEY ("id") REFERENCES "tactics" ("id");
+ALTER TABLE "phase_tatics" ADD FOREIGN KEY ("tactic_id") REFERENCES "tactics" ("object_id");
 
-ALTER TABLE "frameworks" ADD FOREIGN KEY ("id") REFERENCES "techniques" ("id");
+ALTER TABLE "tactic_techniques" ADD FOREIGN KEY ("tech_id") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "frameworks" ADD FOREIGN KEY ("id") REFERENCES "belongs_to_framework" ("framework");
+ALTER TABLE "tactic_techniques" ADD FOREIGN KEY ("tactic_id") REFERENCES "tactics" ("object_id");
 
-ALTER TABLE "belongs_to_framework" ADD FOREIGN KEY ("technique") REFERENCES "techniques" ("id");
+ALTER TABLE "belongs_to_framework" ADD FOREIGN KEY ("framework") REFERENCES "frameworks" ("object_id");
 
-ALTER TABLE "detections" ADD FOREIGN KEY ("detects_technique") REFERENCES "techniques" ("id");
+ALTER TABLE "belongs_to_framework" ADD FOREIGN KEY ("technique") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "counters" ADD FOREIGN KEY ("technique_id") REFERENCES "techniques" ("id");
+ALTER TABLE "detects_technique" ADD FOREIGN KEY ("detection_id") REFERENCES "detections" ("object_id");
 
-ALTER TABLE "counters" ADD FOREIGN KEY ("countered_by") REFERENCES "techniques" ("id");
+ALTER TABLE "detects_technique" ADD FOREIGN KEY ("technique_id") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "metatechnique_associations" ADD FOREIGN KEY ("metatechnique") REFERENCES "metatechniques" ("id");
+ALTER TABLE "counters" ADD FOREIGN KEY ("technique_id") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "metatechnique_associations" ADD FOREIGN KEY ("technique") REFERENCES "techniques" ("id");
+ALTER TABLE "counters" ADD FOREIGN KEY ("countered_by") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "can_perform" ADD FOREIGN KEY ("actortype") REFERENCES "actortypes" ("id");
+ALTER TABLE "metatechnique_associations" ADD FOREIGN KEY ("metatechnique") REFERENCES "metatechniques" ("object_id");
 
-ALTER TABLE "can_perform" ADD FOREIGN KEY ("technique") REFERENCES "techniques" ("id");
+ALTER TABLE "metatechnique_associations" ADD FOREIGN KEY ("technique") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "framework_association" ADD FOREIGN KEY ("actortype") REFERENCES "actortypes" ("id");
+ALTER TABLE "can_perform" ADD FOREIGN KEY ("actortype") REFERENCES "actortypes" ("object_id");
 
-ALTER TABLE "framework_association" ADD FOREIGN KEY ("framework") REFERENCES "frameworks" ("id");
+ALTER TABLE "can_perform" ADD FOREIGN KEY ("technique") REFERENCES "techniques" ("object_id");
 
-ALTER TABLE "actor_capable_detections" ADD FOREIGN KEY ("actortype") REFERENCES "actortypes" ("id");
+ALTER TABLE "framework_association" ADD FOREIGN KEY ("actortype") REFERENCES "actortypes" ("object_id");
 
-ALTER TABLE "actor_capable_detections" ADD FOREIGN KEY ("detection") REFERENCES "detections" ("id");
+ALTER TABLE "framework_association" ADD FOREIGN KEY ("framework") REFERENCES "frameworks" ("object_id");
+
+ALTER TABLE "actor_capable_detections" ADD FOREIGN KEY ("actortype") REFERENCES "actortypes" ("object_id");
+
+ALTER TABLE "actor_capable_detections" ADD FOREIGN KEY ("detection") REFERENCES "detections" ("object_id");
 
 ALTER TABLE "campaign_actors" ADD FOREIGN KEY ("actor") REFERENCES "actors" ("id");
 
 ALTER TABLE "campaign_actors" ADD FOREIGN KEY ("campaign") REFERENCES "campaigns" ("id");
 
-ALTER TABLE "detection_events" ADD FOREIGN KEY ("detection") REFERENCES "detections" ("id");
+ALTER TABLE "detection_events" ADD FOREIGN KEY ("detection") REFERENCES "detections" ("object_id");
 
 ALTER TABLE "campaign_incidents" ADD FOREIGN KEY ("campaign_id") REFERENCES "campaigns" ("id");
 
-ALTER TABLE "incidents" ADD FOREIGN KEY ("id") REFERENCES "campaign_incidents" ("incident");
+ALTER TABLE "campaign_incidents" ADD FOREIGN KEY ("incident") REFERENCES "incidents" ("id");
 
 ALTER TABLE "incident_detections" ADD FOREIGN KEY ("incident_id") REFERENCES "incidents" ("id");
 
-ALTER TABLE "detection_events" ADD FOREIGN KEY ("id") REFERENCES "incident_detections" ("event");
+ALTER TABLE "incident_detections" ADD FOREIGN KEY ("event") REFERENCES "detection_events" ("id");
 
 ALTER TABLE "actors_to_types" ADD FOREIGN KEY ("actor_id") REFERENCES "actors" ("id");
 
-ALTER TABLE "actortypes" ADD FOREIGN KEY ("id") REFERENCES "actors_to_types" ("actor_type_id");
+ALTER TABLE "actors_to_types" ADD FOREIGN KEY ("actor_type_id") REFERENCES "actortypes" ("object_id");
 
 ALTER TABLE "narrative_campaign_support" ADD FOREIGN KEY ("narratives_id") REFERENCES "narratives" ("id");
 

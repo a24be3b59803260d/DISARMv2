@@ -2,60 +2,73 @@
 
 // Creating tables
 Table frameworks as F {
-  id int [pk, increment]
+  object_id varchar [pk]
   name varchar
   description text
-  object_id varchar
 }
 
+// Frameworks consist of phases
 Table phases {
-  // Frameworks consist of phases
-  id int [pk, increment, ref: > F.id]
+  object_id varchar [pk]
   sequence_number int// Phases have order
   name varchar
   description text
-  object_id varchar
+  framework varchar [ref: > F.object_id]
 }
 
+// Phases contain tactics
 Table tactics {
-  // Phases contain tactics
-  id int [pk, ref: > phases.id]
+  object_id varchar [pk]
   name varchar
   description text
-  object_id varchar
 }
 
+// tactics may be associated with multiple phases
+Table phase_tatics {
+  phase_id varchar [ref: > phases.object_id]
+  tactic_id varchar [ref: - tactics.object_id]
+}
+
+// Techniques are means of achieving tactics
 Table techniques as tech {
-  // Tactics can be accomplished with one or more technqiues
-  id int [pk, ref: > tactics.id, ref: < F.id]
+  object_id varchar [pk]
   name varchar
   description text
   // TECHNIQUEs can produce and consume NARRATIVEs
   can_produce_narratives boolean
   can_consume_narratives boolean
-  object_id varchar
+}
+
+// Tactics can be accomplished with one or more technqiues
+Table tactic_techniques {
+  tech_id varchar [ref: > tech.object_id]
+  tactic_id varchar [ref: - tactics.object_id]
 }
 
 // Techniques belong to one or more Frameworks
 Table belongs_to_framework {
-  framework int [ref: < F.id]
-  technique int [ref: - tech.id]
+  framework varchar [ref: > F.object_id]
+  technique varchar [ref: - tech.object_id]
 }
 
+// Detections are means by which a technique may be observed
 Table detections as D {
-  id int [pk]
-  // Techniques are detected by one or more detections
-  detects_technique int [ref: > techniques.id]
+  object_id varchar [pk]
   name varchar
   description text
-  object_id varchar
+}
+
+// Techniques are detected by one or more detections
+Table detects_technique {
+  detection_id varchar [ref: > D.object_id]
+  technique_id varchar [ref: > techniques.object_id]
 }
 
 // Techniques are countered by techniques
 Table counters{
-  technique_id int [ref: - tech.id]
-  countered_by int [ref: - tech.id]
-  object_id varchar
+  object_id varchar [pk]
+  technique_id varchar [ref: - tech.object_id]
+  countered_by varchar [ref: > tech.object_id]
 }
 
 //////////////////////////////////////
@@ -63,41 +76,39 @@ Table counters{
 //
 
 Table metatechniques as M {
-  id int [pk]
+  object_id varchar [pk]
   name varchar
   description text
-  object_id varchar
 }
 
 // Metatechniques may associate one or more techniques
 Table metatechnique_associations {
-  metatechnique int [ref: - M.id]
-  technique int [ref: - tech.id]
+  metatechnique varchar [ref: - M.object_id]
+  technique varchar [ref: - tech.object_id]
 }
 
 Table actortypes as A {
-  id int [pk]
+  object_id varchar [pk]
   name varchar
   description text
-  object_id varchar
 }
 
 // ACTORTYPEs may perform one or more TECHNIQUEs
 Table can_perform {
-  actortype int [ref: - A.id]
-  technique int [ref: - tech.id]
+  actortype varchar [ref: - A.object_id]
+  technique varchar [ref: - tech.object_id]
 }
 
 // ACTORTYPEs may be associated with one or more FRAMEWORKs
 Table framework_association {
-  actortype int [ref: - A.id]
-  framework int [ref: - frameworks.id]
+  actortype varchar [ref: - A.object_id]
+  framework varchar [ref: - frameworks.object_id]
 }
 
 // DETECTIONs may be associated with one or more ACTORTYPEs
 Table actor_capable_detections {
-  actortype int [ref: - A.id]
-  detection int [ref: - detections.id]
+  actortype varchar [ref: - A.object_id]
+  detection varchar [ref: - detections.object_id]
 }
 
 ///////////////////////////////////////
@@ -125,7 +136,7 @@ Table campaign_actors {
 // Detection events are the detection and supporting data
 Table detection_events {
   id int [pk]
-  detection int [ref: - detections.id]
+  detection varchar [ref: - detections.object_id]
   event_data text
 }
 
@@ -138,13 +149,13 @@ Table incidents {
 // INCIDENTs may be associated with a CAMPAIGN
 Table campaign_incidents {
   campaign_id int [ref: - C.id]
-  incident int [ref: < incidents.id]
+  incident int [ref: > incidents.id]
 }
 
 // INCIDENTs are one or more DETECTIONs with accompanying data
 Table incident_detections {
   incident_id int [ref: - incidents.id]
-  event int [ref: < detection_events.id]
+  event int [ref: > detection_events.id]
 }
 // INCIDENTs include zero or more deployed TECHNIQUEs
 // These can be found joining the incidents, evidence, detection
@@ -152,7 +163,7 @@ Table incident_detections {
 // ACTORs belong to one or more ACTORTYPEs
 Table actors_to_types {
   actor_id int [ref: - actors.id]
-  actor_type_id int [ref: < A.id]
+  actor_type_id varchar [ref: > A.object_id]
 }
 
 // NARRATIVEs are one or more distinct concepts that support CAMPAIGNs
