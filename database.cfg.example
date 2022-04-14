@@ -1,0 +1,8 @@
+[creds]
+username=USERNAME
+password=PASSWORD
+
+[conn]
+host=DATABASE_HOST
+port=DATABASE_PORT
+database=disarm_framework
